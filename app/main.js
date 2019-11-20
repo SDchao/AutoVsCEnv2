@@ -11,6 +11,6 @@ function createWindow() {
         resizable: false,
         useContentSize: true
     });
-    win.loadFile("./pages/welcome/welcome.html");
+    win.loadFile("./pages/welcome.html");
     electron.Menu.setApplicationMenu(null);
 }

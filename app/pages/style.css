@@ -57,6 +57,12 @@ div.texts {
     font-size: larger;
 }
 
+div.progress {
+    width: 80%;
+    height: 20px;
+    background: #e4f9f5;
+}
+
 @keyframes fadein {
     0%      {opacity: 0;}
     100%    {opacity: 1;}
