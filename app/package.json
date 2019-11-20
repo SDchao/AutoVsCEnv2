@@ -1,0 +1,22 @@
+{
+  "name": "autovscenv2",
+  "version": "1.0.0",
+  "description": "Simple tool to set up C/C++ development environment using VScode",
+  "main": "main.js",
+  "scripts": {
+    "test": "npm run",
+    "start": "electron ."
+  },
+  "keywords": [
+    "electron",
+    "VScode",
+    "C",
+    "C++"
+  ],
+  "author": "SDchao",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^7.1.2"
+  },
+  "dependencies": {}
+}
