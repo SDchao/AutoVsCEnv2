@@ -1,12 +1,16 @@
-const { app, BrowserWindow } = require('electron');
+const electron = require('electron');
+
+var win;
+
+electron.app.on('ready', createWindow);
 
 function createWindow() {
-    let win = new BrowserWindow({
-        width: 800,
-        height: 600,
+    win = new electron.BrowserWindow({
+        width: 500,
+        height: 250,
+        resizable: false,
+        useContentSize: true
     });
-
-    win.loadFile("./pages/index.html");
+    win.loadFile("./pages/welcome/welcome.html");
+    electron.Menu.setApplicationMenu(null);
 }
-
-app.on('ready', createWindow);
