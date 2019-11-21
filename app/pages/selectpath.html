@@ -18,22 +18,26 @@
             <p id="info">
                 工具采用的是MinGW编译器
                 <br>
-                如果您想了解什么是编译器，<a id="whatiscompilerlink">请点击此处</a>
+                如果您想了解什么是编译器，<a onclick="whatiscompilerlink()">请点击此处</a>
             </p>
         </div>
 
         <div class="pathgroup">
             <p id="description">当前路径:</p>
-            <input type="text" name="path" id="pathinput">
-            <button id="change">更改</button>
+            <input type="text" name="path" id="pathinput" value="">
+            <button id="change" onclick="openPathSelect()">更改</button>
         </div>
     </main>
     <footer>
         <div class="buttongroup">
-            <button id="prev">返回</button>
-            <button id="next">下一步</button>
+            <button id="prev" onclick="prevOnClick()">返回</button>
+            <button id="next" onclick="nextOnClick()">下一步</button>
         </div>
     </footer>
 </body>
+<script src="selectpath.js"></script>
+<script>
+    window.onload = selectpathloaded();
+</script>
 
 </html>

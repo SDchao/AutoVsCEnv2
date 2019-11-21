@@ -16,7 +16,12 @@
   "author": "SDchao",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^7.1.2"
+    "@typescript-eslint/eslint-plugin": "^2.8.0",
+    "@typescript-eslint/parser": "^2.8.0",
+    "electron": "^7.1.2",
+    "eslint": "^6.6.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "typescript": "^3.7.2"
+  }
 }
