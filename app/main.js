@@ -19,17 +19,4 @@ electron.app.on('ready', createWindow);
 // 开始安装
 electron.ipcMain.on("startInstall", () => {
     let win = electron.BrowserWindow.getFocusedWindow();
-    //选择MinGW解压路径
-    let mingwPath = undefined;
-    while (!mingwPath) {
-        mingwPath = electron.dialog.showOpenDialogSync(win, {
-            title: "选择编译器安装路径",
-            buttonLabel: "就这里啦",
-            properties: ["openDirectory"]
-        });
-    }
-
-
-    //载入安装页面
-    win.loadFile("./pages/processing.html");
 });
