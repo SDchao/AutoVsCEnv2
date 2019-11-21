@@ -1,0 +1,148 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 采用flex布局纵向排列，主轴于中间，垂直居中 */
+
+/* 配色方案：浅色到深色
+    e4f9f5
+    30e3ca
+    11999e
+    40514e
+ */
+
+:root {
+    --color1: #e4f9f5;
+    --color2: #30e3ca;
+    --color3: #11999e;
+    --color4: #40514e;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--color4);
+}
+
+header {
+    width: 100vw;
+    margin-top: 2vh;
+    flex: 0.05;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+main {
+    flex: 1 0;
+    margin-top: 10vh;
+}
+
+footer {
+    width: 100vw;
+    flex: 0.6 1 20px;
+}
+
+/* 文字组样式
+    分为标题、副标题、信息
+ */
+
+.textgroup {
+    text-align: center;
+    color: var(--color1);
+}
+
+.textgroup #maintitle {
+    font-family: '微软雅黑'
+}
+
+.textgroup #subtitle {
+    font-size: 20px;
+}
+
+.textgroup #info {
+    margin-top: 1em;
+    font-size: 12px;
+}
+
+.textgroup a {
+    color: var(--color3);
+}
+
+.textgroup a {
+    cursor: pointer;
+}
+
+/* 路径选择组为flex布局 */
+.pathgroup {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 1em;
+}
+
+.pathgroup #description {
+    flex: 0.23;
+    height: 20px;
+    flex-basis: 100%;
+    color: var(--color1);
+
+    font-size: small;
+}
+
+.pathgroup #pathinput {
+    flex: 1;
+    height: 20px;
+    margin:0 3px;
+
+    border-style: none;
+    background-color: var(--color1);
+    color: var(--color4);
+}
+
+.pathgroup #change {
+    flex: 0.15;
+    height: 20px;
+    flex-basis: 10px;
+}
+
+/* 按钮组为flex布局 */
+
+.buttongroup {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+}
+
+button {
+    background: var(--color3);
+    color: var(--color1);
+    border-style: none;
+}
+
+button:hover {
+    background: var(--color2);
+}
+
+.buttongroup #start {
+    width: 30%;
+    height: 70px;
+    align-self: flex-start;
+
+    font-size: large;
+}
+
+.buttongroup #prev {
+    width: 10%;
+    height: 30px;
+}
+
+.buttongroup #next {
+    width: 10%;
+    height: 30px;
+}
+

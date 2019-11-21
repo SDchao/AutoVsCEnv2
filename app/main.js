@@ -2,8 +2,8 @@ const electron = require('electron');
 
 function createWindow() {
     let win = new electron.BrowserWindow({
-        width: 500,
-        height: 250,
+        width: 700,
+        height: 300,
         resizable: false,
         useContentSize: true,
         webPreferences: {
