@@ -63,12 +63,12 @@ function nextOnClick() {
         document.querySelector("#maintitle").innerHTML = "还需要一个路径...";
         document.querySelector("#subtitle").innerHTML = "选择C/C++项目文件夹位置";
         document.querySelector("#info").innerHTML =
-            "项目文件夹用于存放VScode的调试功能配置文件" +
-            "<br>" +
             "您今后的源码文件(.c或.cpp)都需要存放在这个文件夹中" +
             "<br>" +
             '对此抱有疑问，<a onclick="whatisprojectfolder()">请点击此处</a>';
         document.querySelector("#prev").innerHTML = "上一步";
+        document.querySelector("#next").innerHTML = "开始吧";
+        document.querySelector("#description").innerHTML = "当前路径:";
 
         // 变换页面值
         index = 1;
