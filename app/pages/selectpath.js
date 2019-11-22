@@ -42,7 +42,7 @@ function prevOnClick() {
     }
 }
 
-function nextOnClick() {
+function nextOnClick(env) {
     let path = inputPath.value;
     // 路径是否为空
     if (!path) {
@@ -69,17 +69,18 @@ function nextOnClick() {
         document.querySelector("#prev").innerHTML = "上一步";
         document.querySelector("#next").innerHTML = "开始吧";
         document.querySelector("#description").innerHTML = "当前路径:";
+        inputPath.value = remote.app.getPath("appData");
 
         // 变换页面值
         index = 1;
     }
-
     // 若为第二页
-    if (index == 1) {
+    else if (index == 1) {
         // 保存路径值
         projectPath = path;
 
         //开始配置
         ipcRender.send("startInstall", [compilerPath, projectPath]);
+        // location.replace("./installing.html");
     }
 }
