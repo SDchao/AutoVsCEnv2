@@ -1,23 +1,12 @@
 {
   "name": "autovscenv2",
   "version": "1.0.0",
-  "description": "Simple tool to set up C/C++ development environment using VScode",
+  "description": "no",
   "main": "main.js",
-  "scripts": {
-    "test": "npm run",
-    "start": "electron ."
-  },
-  "keywords": [
-    "electron",
-    "VScode",
-    "C",
-    "C++"
-  ],
   "author": "SDchao",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
-    "electron": "^7.1.2",
-    "electron-builder": "^22.1.0"
+    "electron": "^7.1.2"
   },
   "dependencies": {
     "decompress-zip": "^0.2.2",
