@@ -29,7 +29,8 @@
         "node_modules/**/*",
         "modules/**/*",
         "pages/**/*",
-        "res/*",
+        "resources/*",
+        "!resources/MinGW.zip",
         "yarn.lock",
         "main.js"
       ],

@@ -14,8 +14,8 @@ const dialog = electron.dialog;
 // 文件资源
 let appPath = process.cwd();
 let mingwUrl = "http://autovsc-1300748039.cos.ap-shanghai.myqcloud.com/MinGW.zip";
-let mingwPackage = appPath + "/res/MinGW.zip";
-let configPackage = electron.app.getAppPath() + "/res/config.zip";
+let mingwPackage = appPath + "/resources/MinGW.zip";
+let configPackage = electron.app.getAppPath() + "/resources/config.zip";
 
 async function startInstall(compilerPath, projectPath, callback) {
     let win = electron.BrowserWindow.getFocusedWindow();
