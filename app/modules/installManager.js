@@ -12,8 +12,6 @@ let mingwPackage = appPath + "/res/MinGW.zip";
 let configPackage = appPath + "/res/config.zip";
 
 async function startInstall(compilerPath, projectPath) {
-
-    compilerPath = path.normalize(path.join(compilerPath, "mingw"));
     let win = electron.BrowserWindow.getFocusedWindow()
     win.webContents.send("workChanged", "正在检查环境");
 
@@ -26,12 +24,14 @@ async function startInstall(compilerPath, projectPath) {
             message: "您可能未安装VScode或在安装时没有将VScode添加到PATH目录。\n这导致本工具无法为您自动安装VScode插件。\n您可以稍后在VScode中手动安装C/C++插件"
         });
     }
+
+    compilerPath = path.normalize(path.join(compilerPath, "mingw"));
     win.webContents.send("workChanged", "正在配置环境变量");
     try {
         await addInPath(path.join(compilerPath, "bin"));
     }
     catch (error) {
-        throw new Error(error);
+        showError("配置环境变量", error);
     }
 
     win.webContents.send("workChanged", "正在写出MinGW");
@@ -39,7 +39,7 @@ async function startInstall(compilerPath, projectPath) {
         await extractCompiler(compilerPath, win);
     }
     catch (error) {
-        dialog.showErrorBox("被玩坏了", error.stack);
+        showError("解压MinGW", error);
     }
 
     win.webContents.send("workChanged", "正在配置工作区");
@@ -48,7 +48,7 @@ async function startInstall(compilerPath, projectPath) {
         await extractConfig(projectPath, win);
     }
     catch (error) {
-        throw new Error(error);
+        showError("解压配置区文件", error);
     }
 
     win.webContents.send("workChanged", "正在完成");
@@ -156,6 +156,34 @@ async function checkVsCode() {
         });
     });
     return promise;
+}
+
+function showError(workOn, err) {
+    let win = electron.BrowserWindow.getFocusedWindow();
+    let content = "在" + workOn + "时发生了意料之外的错误，配置将无法生效\n以下为捕捉到的错误信息：\n" + err.stack;
+    let select = dialog.showMessageBoxSync(win, {
+        title: "被玩坏了",
+        message: content,
+        buttons: ["反馈错误", "结束配置", "忽略"],
+        defaultId: 1,
+        type: "error"
+    });
+    if (select == 0) {
+        let feedBackInfo = workOn + "\n" + err.stack;
+        electron.clipboard.writeText(feedBackInfo, "selection");
+
+        dialog.showMessageBoxSync(win, {
+            title: "感谢反馈",
+            message: "错误内容已复制到剪贴板。感谢您的反馈！",
+            buttons: ["去提交"]
+        });
+
+        electron.shell.openExternal("https://github.com/SDchao/AutoVsCEnv2/issues/new");
+        electron.app.exit(1);
+    }
+    else if (select == 1) {
+        electron.app.exit(1);
+    }
 }
 
 let e = {
