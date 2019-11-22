@@ -48,6 +48,8 @@ ipc.on('startInstall', (event, args)=> {
     win.loadFile("./pages/installing.html");
     win.webContents.once("did-finish-load", ()=> {
         installing = true;
-        im.startInstall(args[0],args[1]);
+        im.startInstall(args[0],args[1], () => {
+            installing = false;
+        });
     });
 });

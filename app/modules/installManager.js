@@ -12,9 +12,9 @@ const dialog = electron.dialog;
 let appPath = process.cwd();
 let mingwUrl = "http://autovsc-1300748039.cos.ap-shanghai.myqcloud.com/MinGW.zip";
 let mingwPackage = appPath + "/res/MinGW.zip";
-let configPackage = appPath + "/res/config.zip";
+let configPackage = electron.app.getAppPath() + "/res/config.zip";
 
-async function startInstall(compilerPath, projectPath) {
+async function startInstall(compilerPath, projectPath, callback) {
     let win = electron.BrowserWindow.getFocusedWindow();
     changeTitle("正在检查环境");
 
@@ -57,7 +57,7 @@ async function startInstall(compilerPath, projectPath) {
         showError("解压MinGW", error);
     }
 
-    //工作区
+    //工作区解压
     changeTitle("正在配置工作区");
     projectPath = path.normalize(projectPath);
     try {
@@ -67,13 +67,42 @@ async function startInstall(compilerPath, projectPath) {
         showError("解压配置区文件", error);
     }
 
+    //工作区文件修改
+    changeTitle("正在完成工作区配置");
+    try {
+        await replacePathInConfig(projectPath, compilerPath);
+    }
+    catch(error) {
+        showError("修改配置路径", error);
+    }
+
     changeTitle("正在完成");
     win.webContents.send("onCompleted");
+    callback();
 }
 
 function changeTitle(text) {
     let win = electron.BrowserWindow.getAllWindows()[0];
     win.webContents.send("workChanged", text);
+}
+
+async function replacePathInConfig(projectPath, compilerPath) {
+    return new Promise((resolve, reject) => {
+        try {
+            compilerPath = compilerPath.replace("\\","/");
+            let configPath = path.join(projectPath,".vscode");
+            let paths = [path.join(configPath,"c_cpp_properties.json"), path.join(configPath,"launch.json")];
+            for(let i = 0; i < paths.length; i++) {
+                let content = fs.readFileSync(paths[i]).toString();
+                content = content.replace(/%%cPath%%/g, compilerPath);
+                fs.writeFileSync(paths[i],content);
+            }
+            resolve();
+        }
+        catch(error) {
+            reject(error);
+        }
+    });
 }
 
 async function downloadFile(source, target) {
@@ -108,6 +137,11 @@ async function downloadFile(source, target) {
             http.get(source, {
                 headers: headers
             }, (res) => {
+                //若返回416则已下载完毕，返回
+                if(res.statusCode == 416) {
+                    resolve();
+                    return;
+                }
                 //获取总长
                 let totalLength = parseInt(res.headers["content-range"].split("/")[1]);
                 //获取需要下载的长度
