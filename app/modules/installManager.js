@@ -28,7 +28,7 @@ async function startInstall(compilerPath, projectPath) {
     }
     win.webContents.send("workChanged", "正在配置环境变量");
     try {
-        await addInPath(compilerPath);
+        await addInPath(path.join(compilerPath, "bin"));
     }
     catch (error) {
         throw new Error(error);
@@ -39,7 +39,7 @@ async function startInstall(compilerPath, projectPath) {
         await extractCompiler(compilerPath, win);
     }
     catch (error) {
-        throw new Error(error);
+        dialog.showErrorBox("被玩坏了", error.stack);
     }
 
     win.webContents.send("workChanged", "正在配置工作区");
@@ -58,60 +58,67 @@ async function startInstall(compilerPath, projectPath) {
 async function addInPath(path) {
     let promise = new Promise((resolve, reject) => {
         let envPath = "HKCU\\Environment";
-        regedit.list(envPath, (err, result) => {
-            if (err) {
-                reject(err);
-                return;
-            }
+        try {
+            regedit.list(envPath, (err, result) => {
+                if (err) {
+                    throw err;
+                }
 
-            let pathValue = toString(result[envPath].values.Path.value);
-            if (!pathValue) {
-                reject("Cannot find path value");
-                return;
-            }
+                let pathValue = result[envPath].values.Path.value;
 
-            if (!pathValue.endsWith(";"))
-                pathValue += ";";
+                // 如果path中已经包含目标路径则返回
+                if (pathValue.includes(path))
+                    resolve();
 
-            pathValue += path + ";";
+                //path不以分号结尾则添加
+                if (!pathValue.endsWith(";"))
+                    pathValue += ";";
 
-            let valueToInput = {
-                envPath: {
-                    values: {
-                        'Path' : {
-                            value: pathValue
+                pathValue += path;
+
+                let valueToInput = {
+                    "HKCU\\Environment": {
+                        'Path': {
+                            value: pathValue,
+                            type: 'REG_EXPAND_SZ'
                         }
                     }
-                }
-            };
-            regedit.putValue(valueToInput, (err) => {
-                reject(err);
-                return;
-            })
-            resolve();
-        })
+                };
+                regedit.putValue(valueToInput, (err) => {
+                    reject(err);
+                });
+                resolve();
+            });
+        }
+        catch (err) {
+            reject(err);
+        }
     });
     return promise;
 }
 
 async function extractCompiler(path, win) {
     let promise = new Promise((resolve, reject) => {
-        let unzipper = new DecomressZip(mingwPackage);
-        unzipper.on("progress", (fileIndex, fileCount) => {
-            let percent = (fileIndex + 1) / fileCount * 100;
-            win.webContents.send("workChanged", "正在写出MinGW(" + Math.round(percent) + "%)");
-        });
-        unzipper.on("error", (err) => {
-            dialog.showErrorBox("被玩坏了", toString(err));
+        try {
+            let unzipper = new DecomressZip(mingwPackage);
+            unzipper.on("progress", (fileIndex, fileCount) => {
+                let percent = (fileIndex + 1) / fileCount * 100;
+                win.webContents.send("workChanged", "正在写出MinGW(" + Math.round(percent) + "%)");
+            });
+            unzipper.on("error", (err) => {
+                reject(err);
+            });
+            unzipper.on("extract", () => {
+                //完成解压
+                resolve();
+            });
+            unzipper.extract({
+                path: path
+            })
+        }
+        catch (err) {
             reject(err);
-        });
-        unzipper.on("extract", () => {
-            //完成解压
-            resolve();
-        });
-        unzipper.extract({
-            path: path
-        })
+        }
     });
     return promise;
 }
@@ -143,10 +150,9 @@ async function checkVsCode() {
     let promise = new Promise((resolve, reject) => {
         cmd.get("code --version", (err, data, stdrr) => {
             if (err) {
-                reject(err);
-                return;
+                resolve(false);
             }
-            resolve(!toString(data).includes("code"));
+            resolve(true);
         });
     });
     return promise;
