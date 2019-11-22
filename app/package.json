@@ -1,16 +1,51 @@
 {
   "name": "autovscenv2",
   "version": "1.0.0",
-  "description": "no",
+  "description": "a easy tool to auto set up C/C++ environment of VS code",
   "main": "main.js",
   "author": "SDchao",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^7.1.2"
+    "electron": "^7.1.2",
+    "electron-builder": "^22.1.0"
   },
   "dependencies": {
     "decompress-zip": "^0.2.2",
     "node-cmd": "^3.0.0",
     "regedit": "^3.0.3"
+  },
+  "build": {
+    "appId": "sdchaos.autovscenv2",
+    "win": {
+      "target": [
+        {
+          "target": "7z",
+          "arch": [
+            "ia32"
+          ]
+        }
+      ],
+      "files": [
+        "node_modules/**/*",
+        "modules/**/*",
+        "pages/**/*",
+        "res/*",
+        "yarn.lock",
+        "main.js"
+      ],
+      "extraResources": [
+        {
+          "from": "node_modules/regedit/vbs",
+          "to": "regedit/vbs",
+          "filter": [
+            "**/*"
+          ]
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   }
 }

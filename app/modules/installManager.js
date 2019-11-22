@@ -2,7 +2,10 @@
 const cmd = require('node-cmd');
 const electron = require('electron');
 const DecomressZip = require('decompress-zip');
+
 const regedit = require('regedit');
+regedit.setExternalVBSLocation("resources/regedit/vbs");
+
 const path = require('path');
 const http = require('http');
 const fs = require('fs');
@@ -89,7 +92,7 @@ function changeTitle(text) {
 async function replacePathInConfig(projectPath, compilerPath) {
     return new Promise((resolve, reject) => {
         try {
-            compilerPath = compilerPath.replace("\\","/");
+            compilerPath = compilerPath.replace(/\\/g,"/");
             let configPath = path.join(projectPath,".vscode");
             let paths = [path.join(configPath,"c_cpp_properties.json"), path.join(configPath,"launch.json")];
             for(let i = 0; i < paths.length; i++) {
