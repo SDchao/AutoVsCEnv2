@@ -12,6 +12,7 @@ if (!os.platform().includes("win")) {
 }
 
 let win;
+let installing = false;
 
 function createWindow() {
     win = new BrowserWindow({
@@ -28,10 +29,15 @@ function createWindow() {
     win.loadFile("./pages/welcome.html");
     // win.webContents.openDevTools();
     electron.Menu.setApplicationMenu(null);
-    console.log("Window Created!");
+    // console.log("Window Created!");
 
     win.webContents.once("did-finish-load", ()=> {
         win.show();
+    })
+
+    win.on("close", (event) => {
+        if(installing)
+            event.preventDefault();
     })
 }
 
@@ -41,6 +47,7 @@ app.on('ready', createWindow);
 ipc.on('startInstall', (event, args)=> {
     win.loadFile("./pages/installing.html");
     win.webContents.once("did-finish-load", ()=> {
+        installing = true;
         im.startInstall(args[0],args[1]);
     });
 });

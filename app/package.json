@@ -16,7 +16,8 @@
   "author": "SDchao",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^7.1.2"
+    "electron": "^7.1.2",
+    "electron-builder": "^22.1.0"
   },
   "dependencies": {
     "decompress-zip": "^0.2.2",

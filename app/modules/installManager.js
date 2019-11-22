@@ -1,19 +1,22 @@
-/* eslint-disable no-unused-vars */
+
 const cmd = require('node-cmd');
 const electron = require('electron');
 const DecomressZip = require('decompress-zip');
 const regedit = require('regedit');
 const path = require('path');
+const http = require('http');
+const fs = require('fs');
 const dialog = electron.dialog;
 
 // 文件资源
 let appPath = process.cwd();
+let mingwUrl = "http://autovsc-1300748039.cos.ap-shanghai.myqcloud.com/MinGW.zip";
 let mingwPackage = appPath + "/res/MinGW.zip";
 let configPackage = appPath + "/res/config.zip";
 
 async function startInstall(compilerPath, projectPath) {
-    let win = electron.BrowserWindow.getFocusedWindow()
-    win.webContents.send("workChanged", "正在检查环境");
+    let win = electron.BrowserWindow.getFocusedWindow();
+    changeTitle("正在检查环境");
 
     let hasVsCode = await checkVsCode();
     if (!hasVsCode) {
@@ -25,8 +28,20 @@ async function startInstall(compilerPath, projectPath) {
         });
     }
 
+    //编译器
     compilerPath = path.normalize(path.join(compilerPath, "mingw"));
-    win.webContents.send("workChanged", "正在配置环境变量");
+
+    changeTitle("正在下载MinGW");
+    try {
+        await downloadFile(mingwUrl, mingwPackage);
+    }
+    catch (error) {
+        showError("下载MinGW", error);
+    }
+
+
+
+    changeTitle("正在配置环境变量");
     try {
         await addInPath(path.join(compilerPath, "bin"));
     }
@@ -34,7 +49,7 @@ async function startInstall(compilerPath, projectPath) {
         showError("配置环境变量", error);
     }
 
-    win.webContents.send("workChanged", "正在写出MinGW");
+    changeTitle("正在解压MinGW");
     try {
         await extractCompiler(compilerPath, win);
     }
@@ -42,7 +57,8 @@ async function startInstall(compilerPath, projectPath) {
         showError("解压MinGW", error);
     }
 
-    win.webContents.send("workChanged", "正在配置工作区");
+    //工作区
+    changeTitle("正在配置工作区");
     projectPath = path.normalize(projectPath);
     try {
         await extractConfig(projectPath, win);
@@ -51,8 +67,104 @@ async function startInstall(compilerPath, projectPath) {
         showError("解压配置区文件", error);
     }
 
-    win.webContents.send("workChanged", "正在完成");
+    changeTitle("正在完成");
     win.webContents.send("onCompleted");
+}
+
+function changeTitle(text) {
+    let win = electron.BrowserWindow.getAllWindows()[0];
+    win.webContents.send("workChanged", text);
+}
+
+async function downloadFile(source, target) {
+    let promise = new Promise((resolve, reject) => {
+        try {
+            //当前进度
+            let cur = 0;
+            //文件时间
+            let eTagNow = new Date(0);
+
+            //获取目标目录
+            let dir = path.dirname(target);
+
+            if (fs.existsSync(dir)) {
+                //目录存在，检测文件是否存在
+                if (fs.existsSync(target)) {
+                    let stat = fs.statSync(target)
+                    cur = stat.size;
+                    eTagNow = stat.ctime;
+                }
+            }
+            else {
+                //目录不存在，创建
+                fs.mkdirSync(dir);
+            }
+
+            let headers = {
+                "If-Range": eTagNow.toUTCString(),
+                "Range": "bytes=" + cur + "-"
+            }
+
+            http.get(source, {
+                headers: headers
+            }, (res) => {
+                //获取总长
+                let totalLength = parseInt(res.headers["content-range"].split("/")[1]);
+                //获取需要下载的长度
+                let nowLength = parseInt(res.headers["content-length"]);
+                try {
+                    let flag = "w";
+                    //若无需重新下载则追加打开文件
+                    if (nowLength != totalLength)
+                        flag = "a+";
+
+                    let outStream = fs.createWriteStream(target, {
+                        flags: flag
+                    });
+
+                    let lastTime = new Date();
+                    let durationSize = 0;
+                    let showSpeed = "";
+
+                    res.pipe(outStream);
+
+                    res.on("data", (chunk) => {
+                        cur += chunk.length;
+                        durationSize += chunk.length;
+
+                        let percent = (cur / totalLength * 100).toFixed(0);
+
+                        let nowTime = new Date();
+                        let duration = nowTime.getTime() - lastTime.getTime();
+                        if (duration > 500) {
+                            let speed = (durationSize / 1024) / (duration / 1000); // kB/s
+
+                            if (speed > 1024) {
+                                showSpeed = (speed / 1024).toFixed(2) + " MB/s";
+                            }
+                            else {
+                                showSpeed = speed.toFixed(2) + " KB/s";
+                            }
+                        }
+
+                        changeTitle("正在下载MinGW (" + percent + "%) " + showSpeed);
+                    });
+
+                    res.on("close", () => {
+                        outStream.close();
+                        resolve();
+                    });
+                } catch (err) {
+                    reject(err);
+                }
+            })
+
+        }
+        catch (err) {
+            reject(err);
+        }
+    });
+    return promise;
 }
 
 async function addInPath(path) {
@@ -67,8 +179,11 @@ async function addInPath(path) {
                 let pathValue = result[envPath].values.Path.value;
 
                 // 如果path中已经包含目标路径则返回
-                if (pathValue.includes(path))
+                if (pathValue.includes(path)) {
                     resolve();
+                    return;
+                }
+
 
                 //path不以分号结尾则添加
                 if (!pathValue.endsWith(";"))
@@ -97,13 +212,13 @@ async function addInPath(path) {
     return promise;
 }
 
-async function extractCompiler(path, win) {
+async function extractCompiler(path) {
     let promise = new Promise((resolve, reject) => {
         try {
             let unzipper = new DecomressZip(mingwPackage);
             unzipper.on("progress", (fileIndex, fileCount) => {
                 let percent = (fileIndex + 1) / fileCount * 100;
-                win.webContents.send("workChanged", "正在写出MinGW(" + Math.round(percent) + "%)");
+                changeTitle("正在写出MinGW(" + Math.round(percent) + "%)");
             });
             unzipper.on("error", (err) => {
                 reject(err);
@@ -123,12 +238,12 @@ async function extractCompiler(path, win) {
     return promise;
 }
 
-async function extractConfig(path, win) {
+async function extractConfig(path) {
     let promise = new Promise((resolve, reject) => {
         let unzipper = new DecomressZip(configPackage);
         unzipper.on("progress", (fileIndex, fileCount) => {
             let percent = (fileIndex + 1) / fileCount * 100;
-            win.webContents.send("workChanged", "正在配置工作区(" + Math.round(percent) + "%)");
+            changeTitle("正在配置工作区(" + Math.round(percent) + "%)");
         });
         unzipper.on("error", (err) => {
             dialog.showErrorBox("被玩坏了", toString(err));
@@ -147,10 +262,13 @@ async function extractConfig(path, win) {
 
 
 async function checkVsCode() {
+    // eslint-disable-next-line no-unused-vars
     let promise = new Promise((resolve, reject) => {
+        // eslint-disable-next-line no-unused-vars
         cmd.get("code --version", (err, data, stdrr) => {
             if (err) {
                 resolve(false);
+                return;
             }
             resolve(true);
         });
@@ -159,7 +277,7 @@ async function checkVsCode() {
 }
 
 function showError(workOn, err) {
-    let win = electron.BrowserWindow.getFocusedWindow();
+    let win = electron.BrowserWindow.getAllWindows()[0];
     let content = "在" + workOn + "时发生了意料之外的错误，配置将无法生效\n以下为捕捉到的错误信息：\n" + err.stack;
     let select = dialog.showMessageBoxSync(win, {
         title: "被玩坏了",
