@@ -15,7 +15,7 @@ if (!os.platform().includes("win")) {
 let win;
 let installing = false;
 
-function createWindow() {
+function onReady() {
     win = new BrowserWindow({
         width: 700,
         height: 300,
@@ -32,38 +32,51 @@ function createWindow() {
     electron.Menu.setApplicationMenu(null);
     // console.log("Window Created!");
 
-    win.webContents.once("did-finish-load", ()=> {
+    win.webContents.once("did-finish-load", () => {
+        checkUpdate();
         win.show();
     })
 
     win.on("close", (event) => {
-        if(installing)
+        if (installing)
             event.preventDefault();
     })
 }
 
-function checkUpdate() {
-    updateHelper.hasNewVersion()
-    .then((hasNew) => {
-        if(!hasNew)
-            return;
-        dialog.showMessageBoxSync(win,{
-            title: "发现新版本",
-            message: "当前版本极有可能无法使用，强烈建议更新！",
-        });
-        electron.shell.openExternal("https://github.com/SDchao/AutoVsCEnv2/releases/latest");
-    });
+async function checkUpdate() {
+    return new Promise((resolve) => {
+        updateHelper.hasNewVersion()
+            .then(hasNew => {
+                if (!hasNew) {
+                    resolve();
+                    return;
+                }
+                dialog.showMessageBox({
+                    title: "发现新版本",
+                    message: "当前版本极有可能无法使用，强烈建议更新！",
+                }, () => {
+                    electron.shell.openExternal("https://github.com/SDchao/AutoVsCEnv2/releases/latest");
+                });
+                resolve();
+            })
+            .catch(err => {
+                dialog.showMessageBox({
+                    title: "检查更新失败",
+                    message: "若功能无法正常使用，请手动检查！\n" + err
+                });
+                resolve();
+            })
+    })
 }
 
-app.on('ready', createWindow);
-app.on('ready', checkUpdate);
+app.on('ready', onReady);
 
 // 收到开始安装消息
-ipc.on('startInstall', (event, args)=> {
+ipc.on('startInstall', (event, args) => {
     win.loadFile("./pages/installing.html");
-    win.webContents.once("did-finish-load", ()=> {
+    win.webContents.once("did-finish-load", () => {
         installing = true;
-        im.startInstall(args[0],args[1], () => {
+        im.startInstall(args[0], args[1], () => {
             installing = false;
         });
     });
