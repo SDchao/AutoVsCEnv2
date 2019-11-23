@@ -1,6 +1,6 @@
 const https = require('https');
 
-const packageUrl = "https://raw.githubusercontent.com/SDchao/AutoVsCEnv2/master/app/package.json";
+const packageUrl = "https://gitee.com/SDchao/AutoVsCEnv2/raw/master/app/package.json";
 
 
 async function hasNewVersion() {
