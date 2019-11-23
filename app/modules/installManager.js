@@ -30,12 +30,14 @@ async function startInstall(compilerPath, projectPath, callback) {
 
 
     //安装VScode插件
-    changeTitle("正在安装C/C++插件");
-    try {
-        await vscodeHelper.installExtension();
-    }
-    catch (err) {
-        showError("建议忽略该错误，稍后手动安装\n安装插件", err);
+    if (hasVsCode) {
+        changeTitle("正在安装C/C++插件");
+        try {
+            await vscodeHelper.installExtension();
+        }
+        catch (err) {
+            showError("建议忽略该错误，稍后手动安装\n安装插件", err);
+        }
     }
 
     //编译器
