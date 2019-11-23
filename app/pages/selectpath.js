@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 const electron = require("electron");
+const path = require('path');
 const ipcRender = electron.ipcRenderer;
 const remote = electron.remote;
 
@@ -14,6 +15,14 @@ let inputPath = document.querySelector("#pathinput");
 
 function selectpathloaded() {
     inputPath.value = remote.app.getPath("appData");
+}
+
+function whatiscompilerlink() {
+    remote.shell.openExternal("https://github.com/SDchao/AutoVsCEnv2/blob/master/README_inProject.md#%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%96%E8%AF%91%E5%99%A8");
+}
+
+function whatisprojectfolder() {
+    remote.shell.openExternal("https://github.com/SDchao/AutoVsCEnv2/blob/master/README_inProject.md#%E4%BB%80%E4%B9%88%E6%98%AF%E5%B7%A5%E4%BD%9C%E5%8C%BA%E6%96%87%E4%BB%B6%E5%A4%B9");
 }
 
 function openPathSelect() {
