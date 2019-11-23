@@ -95,6 +95,8 @@ async function startInstall(compilerPath, projectPath, callback) {
     }
 
     changeTitle("正在完成");
+    let readmePath = path.join(projectPath,"README_inProject.md");
+    vscodeHelper.openCode(readmePath);
     win.webContents.send("onCompleted");
     callback();
 }

@@ -97,10 +97,23 @@ async function installExtension() {
     });
 }
 
+function openCode(path) {
+    let command = "";
+        if (vscodePath) {
+            command += vscodePath.substring(0, 2);
+            command += "&&";
+            command += 'cd "' + vscodePath + 'bin"';
+            command += "&&"
+        }
+        command += "code -g " + path;
+        cmd.run(command);
+}
+
 let e = {
     checkVsCode: checkVsCode,
     replacePathInConfig: replacePathInConfig,
-    installExtension: installExtension
+    installExtension: installExtension,
+    openCode: openCode
 }
 
 module.exports = e;
