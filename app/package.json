@@ -31,7 +31,7 @@
         "modules/**/*",
         "pages/**/*",
         "resources/*",
-        "!resources/MinGW.zip",
+        "!resources/MinGW.7z",
         "yarn.lock",
         "main.js"
       ],
