@@ -19,7 +19,8 @@ async function hasNewVersion() {
 
             res.on('close', () => {
                 let newest = JSON.parse(content)["version"];
-                let now =  fs.readFileSync("../package.json").toJSON()["version"];
+                let now =  require("../package.json").version;
+                console.log(newest, now);
                 resolve(now < newest);
             })
         })
