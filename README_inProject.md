@@ -78,6 +78,6 @@ MinGW 提供了一套简单方便的Windows下的基于GCC 程序开发环境。
 
 # 反馈
 如果该文档并没有包含到您遇到的错误情况或您想了解的内容，请通过以下方式向我反馈。
-* [B站私信](space.bilibili.com/12263994)
+* [B站私信](https://space.bilibili.com/12263994)
 * [视频评论](https://www.bilibili.com/video/av52434248)
 * [Github Issue](https://github.com/SDchao/AutoVsCEnv2/issues/new) **推荐**
