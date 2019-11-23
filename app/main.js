@@ -55,7 +55,7 @@ async function checkUpdate() {
                     title: "发现新版本",
                     message: "当前版本极有可能无法使用，强烈建议更新！",
                 }, () => {
-                    electron.shell.openExternal("https://github.com/SDchao/AutoVsCEnv2/releases/latest");
+                    electron.shell.openExternal("https://gitee.com/SDchao/AutoVsCEnv2/releases/latest");
                 });
                 resolve();
             })
