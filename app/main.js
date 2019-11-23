@@ -1,5 +1,6 @@
 const electron = require('electron');
 const os = require("os");
+const updateHelper = require('./modules/updateHelper');
 const app = electron.app;
 const dialog = electron.dialog;
 const BrowserWindow = electron.BrowserWindow;
@@ -41,7 +42,21 @@ function createWindow() {
     })
 }
 
+function checkUpdate() {
+    updateHelper.hasNewVersion()
+    .then((hasNew) => {
+        if(!hasNew)
+            return;
+        dialog.showMessageBoxSync(win,{
+            title: "发现新版本",
+            message: "当前版本极有可能无法使用，强烈建议更新！",
+        });
+        electron.shell.openExternal("https://github.com/SDchao/AutoVsCEnv2/releases/latest");
+    });
+}
+
 app.on('ready', createWindow);
+app.on('ready', checkUpdate);
 
 // 收到开始安装消息
 ipc.on('startInstall', (event, args)=> {

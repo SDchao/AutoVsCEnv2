@@ -33,7 +33,8 @@
         "resources/*",
         "!resources/MinGW.7z",
         "yarn.lock",
-        "main.js"
+        "main.js",
+        "package.json"
       ],
       "extraResources": [
         {
