@@ -19,7 +19,7 @@ function onReady() {
     win = new BrowserWindow({
         width: 700,
         height: 300,
-        backgroundColor: "#40514e",
+        backgroundColor: "#393e46",
         resizable: false,
         useContentSize: true,
         show: false,

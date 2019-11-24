@@ -14,10 +14,10 @@
  */
 
 :root {
-    --color1: #e4f9f5;
+    --color1: #eeeeee;
     --color2: #30e3ca;
-    --color3: #11999e;
-    --color4: #40514e;
+    --color3: #00adb5;
+    --color4: #393e46;
 }
 
 body {
