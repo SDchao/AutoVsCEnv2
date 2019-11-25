@@ -1,11 +1,11 @@
 const path = require('path');
 const fs = require('fs');
-const http = require('http');
-const https = require('https');
+const {http, https} = require("follow-redirects");
 
 async function getLanzouDownloadUrl(shareUrl) {
     return new Promise((resolve, reject) => {
         let apiUrl = "http://api.iiwl.cc/lz/?url=" + shareUrl;
+
         http.get(apiUrl, (res) => {
             let html = "";
             //若返回异常
@@ -30,8 +30,11 @@ async function getLanzouDownloadUrl(shareUrl) {
 }
 
 async function downloadFileFromLanzou(source, target, processCallBack) {
-    let trueUrl = await getLanzouDownloadUrl(source);
-    console.log(trueUrl);
+    source = getLanzouDownloadUrl(source);
+    return await downloadFile(source,target,processCallBack);
+}
+
+async function downloadFile(sourece, target, processCallBack) {
     let promise = new Promise((resolve, reject) => {
         try {
             //当前进度
@@ -46,8 +49,7 @@ async function downloadFileFromLanzou(source, target, processCallBack) {
                 fs.mkdirSync(dir);
             }
 
-
-            https.get(trueUrl, (res) => {
+            https.get(sourece,(res) => {
                 try {
                     //若返回异常
                     if (res.statusCode != 200) {
@@ -89,7 +91,7 @@ async function downloadFileFromLanzou(source, target, processCallBack) {
 
                         let nowTime = new Date();
                         let duration = nowTime.getTime() - lastTime.getTime();
-                        if (duration > 500) {
+                        if (duration > 1000) {
                             let speed = (durationSize / 1024) / (duration / 1000); // kB/s
 
                             if (speed > 1024) {
@@ -100,10 +102,9 @@ async function downloadFileFromLanzou(source, target, processCallBack) {
                             } 
 
                             lastTime = nowTime;
-                            durationSize = 0;
-
-                            processCallBack(percent, showSpeed);    
+                            durationSize = 0;  
                         }
+                        processCallBack(percent, showSpeed); 
                     } catch(err) {
                         console.log(err);
                     }
@@ -128,7 +129,8 @@ async function downloadFileFromLanzou(source, target, processCallBack) {
 }
 
 let e = {
-    downloadFileFromLanzou: downloadFileFromLanzou
+    downloadFileFromLanzou: downloadFileFromLanzou,
+    downloadFile: downloadFile
 }
 
 module.exports = e;

@@ -11,7 +11,8 @@ async function startInstall(compilerPath, projectPath, callback) {
 
     // 文件资源
     let appPath = process.cwd();
-    let mingwUrl = "http://www.lanzous.com/i7iwn2h";
+    // let mingwUrl = "http://www.lanzous.com/i7iwn2h";
+    let mingwUrl = "https://sdchaos.oss-cn-shanghai.aliyuncs.com/MinGW.7z";
     let mingwPackage = appPath + "/resources/MinGW.7z";
     let configPackage = electron.app.getAppPath() + "/resources/config.zip";
 
@@ -45,8 +46,8 @@ async function startInstall(compilerPath, projectPath, callback) {
 
     changeTitle("正在准备MinGW");
     try {
-        await downloadHelper.downloadFileFromLanzou(mingwUrl, mingwPackage, (percent) => {
-            changeTitle("正在下载MinGW (" + percent + "%)");
+        await downloadHelper.downloadFile(mingwUrl, mingwPackage, (percent, speed) => {
+            changeTitle("正在下载MinGW (" + percent + "%) " + speed);
         });
     }
     catch (error) {
