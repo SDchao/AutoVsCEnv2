@@ -43,36 +43,45 @@ async function downloadFile(sourece, target, processCallBack) {
             let tempPath = target + ".tmp";
             //获取目标目录
             let dir = path.dirname(target);
+            // 若文件存在，则直接返回
+            if(fs.existsSync(target)) {
+                resolve();
+                return;
+            }
+                
 
             if (!fs.existsSync(dir)) {
                 //目录不存在，创建
                 fs.mkdirSync(dir);
             }
 
-            https.get(sourece,(res) => {
+            // 获取现在临时文件长度
+            if(fs.existsSync(tempPath)) {
+                cur = fs.statSync(tempPath).size;
+            }
+
+            // 若文件存在则获取
+
+            https.get(sourece,{
+                headers: {
+                    "Range" : "bytes=" + cur + "-"
+                }
+            },(res) => {
                 try {
                     //若返回异常
-                    if (res.statusCode != 200) {
+                    if (res.statusCode != 206) {
                         reject(new Error("Error downloading\n" + res.statusCode + res.statusMessage));
                         return;
                     }
-                    //获取需要下载的长度
-                    let totalLength = parseInt(res.headers["content-length"]);
 
-                    //获取现在文件的长度
-                    let fileLength = 0;
-                    if (fs.existsSync(target)) {
-                        fileLength = fs.statSync(target).size;
-                        //若文件与需要下载的长度相同，返回
-                        if (fileLength == totalLength) {
-                            resolve();
-                            return;
-                        }
-                        fs.unlinkSync(target);
-                    }
+                    // 获取content-range
+                    let contentRange = res.headers["content-range"];
+
+                    //获取需要下载的长度
+                    let totalLength = contentRange.split("/")[1];
 
                     let outStream = fs.createWriteStream(tempPath, {
-                        flags: "w"
+                        flags: "a+"
                     });
 
 
